@@ -1,0 +1,23 @@
+{
+  "manifest_version": 2,
+  "name": "SustainabiliTool",
+  "version": "0.1.0",
+
+  "description": "A tool that will analyze the courses, modules, institutes, research, and staff at the University of Worcester.",
+
+  "icons": {
+    "48": "icons/susTool-48.png"
+  },
+
+  "permissions": [
+    "webRequest"
+  ],
+
+  "content_scripts": [
+    {
+      "matches": ["*://ext-webapp-01.worc.ac.uk/cgi-bin/module/module_directory_*.pl"],
+      "js": ["scripts/jquery-3.3.1.min.js", "scripts/moduleAnalyzer.js"],
+      "css": ["highlight.css"]
+    }
+  ]
+}
