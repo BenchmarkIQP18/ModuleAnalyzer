@@ -8,12 +8,12 @@
 var URL = `${document.location.protocol}//${document.location.hostname}${document.location.pathname}`;
 /* Used to keep track of how many unresolved Ajax requests we have.
    Should allow us to run a thing after all modules are retrieved */
-var GlobalWaitingFor = 0;
 var GlobalStats = {
   moduleCount: 0,
   susModules: 0,
-  moduleList: [],
-  susModulesList: []
+	waitingFor: 0,
+  susModulesList: [],
+	otherModuleList: []
 };
 
 // var saveFile = "Module Title, Module Description, Keyword Count,"
@@ -45,6 +45,7 @@ function runModuleAnalyzer() {
 <p>Total modules analyzed: ${GlobalStats.moduleCount}</p>
 <p>Sustainability related modules: ${GlobalStats.susModules}</p>
 <p>Percentage: ${GlobalStats.susModules/GlobalStats.moduleCount*100}%</p>
+<p>Waiting on ${GlobalStats.waitingFor} modules</p>
 </div>
 `);
   loadingAnim = window.setInterval(function() {
@@ -116,7 +117,7 @@ function getModuleInfo(moduleName) {
     module: "yes"
   };
   // Keep track of unresolved requests
-  GlobalWaitingFor += 1;
+  GlobalStats.waitingFor += 1;
   // Send the request
   $.ajax({
     type: "POST",
@@ -151,7 +152,6 @@ function readModuleInfo(responseText) {
 
   // Keep track of how many modules we have analyzed
   GlobalStats.moduleCount += 1;
-  GlobalStats.moduleList.push([mCode, mName, mDescription]);
 
   // Check for keywords
   if(keywordRegex.test(mDescription) | keywordRegex.test(mName)) {
@@ -163,23 +163,39 @@ function readModuleInfo(responseText) {
     hName = mName.replace(keywordRegex, `<span class="highlight">$&</span>`);
     jQuery("#results_table").append(`<tr><td>${mCode}</td><td>${hName}</td><td>${hDes}</td></tr>`);
   }
-  // Write the stats to the page. Allows it to be clear that it is working
-  jQuery("#stats").html(`
-<p>Total modules analyzed: ${GlobalStats.moduleCount}</p>
-<p>Sustainability related modules: ${GlobalStats.susModules}</p>
-<p>Percentage: ${Math.round(GlobalStats.susModules/GlobalStats.moduleCount*100*100)/100}</p>
-`);
+	else {
+		GlobalStats.otherModuleList.push([mCode, mName, mDescription]);
+	}
 
   // Check to see if this is the last response
-  GlobalWaitingFor -= 1;
-  if(GlobalWaitingFor == 0) {
+  GlobalStats.waitingFor -= 1;
+  if(GlobalStats.waitingFor == 0) {
     // Stop the animation
     window.clearInterval(loadingAnim);
     $("#loading_text").text("Finished Analyzing");
     // If there are no more unresolved Ajax requests, then we can print the final results
     console.log("Module count = " + GlobalStats.moduleCount);
     console.log("Sustainability modules = " + GlobalStats.susModules);
-    // Export results here, if you want to
-    // If you want to do something with the module lists, you can put it here
+    /*
+		// Print lists of sus modules and non-sus modules. Used in validation
+		// (could not find a better way to export the information)
+		susdata = GlobalStats.susModulesList.map(
+			el => el.join('#').replace(/[\n\r\t]/gm,' '))
+			.join("\n");
+		console.log("Sus Modules")
+		console.log(susdata);
+		otherdata = GlobalStats.otherModuleList.map(
+			el => el.join('#').replace(/[\n\r\t]/gm,' '))
+			.join("\n")
+		console.log("Other Modules");
+		console.log(otherdata)
+		//*/
   }
+	// Write the stats to the page. Allows it to be clear that it is working
+  jQuery("#stats").html(`
+<p>Total modules analyzed: ${GlobalStats.moduleCount}</p>
+<p>Sustainability related modules: ${GlobalStats.susModules}</p>
+<p>Percentage: ${Math.round(GlobalStats.susModules/GlobalStats.moduleCount*100*100)/100}</p>
+<p>Waiting on ${GlobalStats.waitingFor} modules</p>
+`);
 }
