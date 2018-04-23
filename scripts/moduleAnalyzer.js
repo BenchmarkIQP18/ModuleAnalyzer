@@ -173,9 +173,15 @@ function readModuleInfo(responseText) {
 		// Stop the animation
 		window.clearInterval(loadingAnim);
 		$("#loading_text").text("Finished Analyzing");
-		// If there are no more unresolved Ajax requests, then we can print the final results
-		console.log("Module count = " + GlobalStats.moduleCount);
-		console.log("Sustainability modules = " + GlobalStats.susModules);
+		// Alert the user that it is finished
+		alert(`
+The Module Analyzer has finished running
+
+Results:
+Total modules analyzed: ${GlobalStats.moduleCount}
+Sustainability related modules: ${GlobalStats.susModules}
+Percentage: ${Math.round(GlobalStats.susModules/GlobalStats.moduleCount*100*100)/100}
+`)
 		/*
 		// Print lists of sus modules and non-sus modules. Used in validation
 		// (could not find a better way to export the information)
