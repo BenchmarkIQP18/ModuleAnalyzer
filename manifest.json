@@ -6,7 +6,7 @@
   "description": "A tool that will analyze the courses, modules, institutes, research, and staff at the University of Worcester.",
 
   "icons": {
-    "48": "icons/susTool-48.png"
+    "48": "icons/icon.jpg"
   },
 
   "permissions": [
